@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Weather Forecast</string>
+    <string name="weather_image">weather image</string>
+    <string name="search">Search</string>
+    <string name="search_by_city_name">search by city name</string>
+    <string name="current_weather">Wind: %1$s m/s \nPressure: %2$d hpa\nHumidity: %3$d %% \nSunrise: %4$s\nSunset: %5$s</string>
+
+
+    <array name="weather_tab_days">
+        <item>Today</item>
+        <item>Tomorrow</item>
+        <item>Latter</item>
+    </array>
+
+</resources>
