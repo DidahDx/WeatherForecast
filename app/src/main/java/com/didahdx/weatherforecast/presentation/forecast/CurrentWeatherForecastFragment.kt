@@ -1,36 +1,26 @@
 package com.didahdx.weatherforecast.presentation.forecast
 
+
 import android.Manifest
-import android.os.Bundle
-import android.view.*
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
-import com.didahdx.weatherforecast.R
-import com.didahdx.weatherforecast.databinding.CurrentWeatherForecastFragmentBinding
-import com.didahdx.weatherforecast.presentation.BaseFragment
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
-import android.R.menu
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
-import android.text.TextUtils
-
-import android.view.MenuInflater
+import android.os.Bundle
+import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.Observer
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.onNavDestinationSelected
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.viewModels
 import com.didahdx.weatherforecast.App
+import com.didahdx.weatherforecast.R
 import com.didahdx.weatherforecast.common.DateTimeConversion
 import com.didahdx.weatherforecast.common.GeocodeConverter
+import com.didahdx.weatherforecast.databinding.CurrentWeatherForecastFragmentBinding
+import com.didahdx.weatherforecast.presentation.BaseFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.CancellationToken
-import com.google.android.gms.tasks.OnTokenCanceledListener
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import timber.log.Timber
 
 
@@ -56,48 +46,62 @@ class CurrentWeatherForecastFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        val mContext=context
-        if(mContext!=null){
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext)
-        if (ActivityCompat.checkSelfPermission(
-                mContext,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                mContext,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location : Location? ->
+
+        val mContext = context
+        if (mContext != null) {
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext)
+            if (ActivityCompat.checkSelfPermission(
+                    mContext,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    mContext,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                     // Got last known location. In some rare situations this can be null.
-                    if(location!=null){
-                       val cityName=  GeocodeConverter.getCityName(mContext,location.latitude.toString(),location.latitude.toString())
+                    if (location != null) {
+                        val cityName = GeocodeConverter.getCityName(
+                            mContext,
+                            location.latitude.toString(),
+                            location.latitude.toString()
+                        )
                         if (cityName != null) {
 //                            viewModel.initialiseCurrentCity(cityName)
                         }
                     }
 
                 }
+            }
         }
-        }
+
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding= CurrentWeatherForecastFragmentBinding.inflate(inflater,container,false)
+        _binding = CurrentWeatherForecastFragmentBinding.inflate(inflater, container, false)
         val fm: FragmentManager = childFragmentManager
         val lifecycle = viewLifecycleOwner.lifecycle
         val forecastpager = ForecastPageAdapter(fm, lifecycle)
         binding.weatherPager.adapter = forecastpager
 
-        viewModel.currentWeather.observe(viewLifecycleOwner, { currentWeather->
-            if(currentWeather!=null){
-                binding.tvTemp.text = currentWeather.temp.toString()
-                val sunrise=DateTimeConversion.convertToTime(currentWeather.sunrise.toLong())
-                val sunset=DateTimeConversion.convertToTime(currentWeather.sunset.toLong())
-                binding.tvCurrentWeatherDetails.text = resources.getString(R.string.current_weather,currentWeather.windSpeed.toString(),currentWeather.pressure,currentWeather.humidity,sunrise,sunset)}
-            })
+        viewModel.currentWeather.observe(viewLifecycleOwner, { currentWeather ->
+            if (currentWeather != null) {
+                binding.tvTemp.text = resources.getString(R.string.temp,currentWeather.temp)
+                val sunrise = DateTimeConversion.convertToTime(currentWeather.sunrise.toLong())
+                val sunset = DateTimeConversion.convertToTime(currentWeather.sunset.toLong())
+                binding.tvCurrentWeatherDetails.text = resources.getString(
+                    R.string.current_weather,
+                    currentWeather.windSpeed.toString(),
+                    currentWeather.pressure,
+                    currentWeather.humidity,
+                    sunrise,
+                    sunset
+                )
+            }
+        })
 
 
         val tabTitles = resources.getStringArray(R.array.weather_tab_days)
@@ -135,7 +139,6 @@ class CurrentWeatherForecastFragment : BaseFragment() {
         })
 
     }
-
 
 
     override fun onDestroyView() {

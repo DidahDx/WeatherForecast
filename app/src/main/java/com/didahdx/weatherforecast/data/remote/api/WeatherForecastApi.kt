@@ -16,7 +16,8 @@ interface WeatherForecastApi {
         @Query("lat") latitude: String,
         @Query("lon") longitude: String,
         @Query("exclude") exclude: String,
-        @Query("appid") apiKey: String
+        @Query("appid") apiKey: String,
+        @Query("units") unit: String = "metric",
     ): Observable<OneCallWeatherForecast>
 
     @GET("weather")
