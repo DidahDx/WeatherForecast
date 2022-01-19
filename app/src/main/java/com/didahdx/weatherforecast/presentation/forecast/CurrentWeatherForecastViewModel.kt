@@ -3,7 +3,7 @@ package com.didahdx.weatherforecast.presentation.forecast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.didahdx.weatherforecast.common.Constants
+import com.didahdx.weatherforecast.data.local.entities.CurrentEntity
 import com.didahdx.weatherforecast.data.remote.dto.Current
 import com.didahdx.weatherforecast.di.AssistedSavedStateViewModelFactory
 import com.didahdx.weatherforecast.domain.repository.WeatherForecastRepository
@@ -13,28 +13,41 @@ import dagger.assisted.AssistedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
-import java.util.*
+import io.reactivex.rxjava3.subjects.PublishSubject
+
+
+
 
 class CurrentWeatherForecastViewModel @AssistedInject constructor(
     private val weatherForecastRepository: WeatherForecastRepository,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val compositeDisposable=CompositeDisposable()
-    val currentWeather=MutableLiveData<Current>()
+    private val compositeDisposable = CompositeDisposable()
+    val currentWeather = MutableLiveData<CurrentEntity>()
+    private val searchPublishSubject: PublishSubject<String> = PublishSubject.create<String>()
 
     init {
-      search("Nairobi")
+        initRxSearch()
+        search("Nairobi")
     }
 
-    private fun search(cityName:String){
-      compositeDisposable.add(weatherForecastRepository.searchByCityName(cityName)
-          .subscribeOn(Schedulers.io())
-          .subscribe({
-              Timber.e("$it")
-              currentWeather.postValue(it.current)
-          }, Timber::e)
-      )
+    private fun search(cityName: String) {
+       searchPublishSubject.onNext(cityName)
+    }
+
+    private fun initRxSearch(){
+        compositeDisposable.add(
+            searchPublishSubject
+                .subscribeOn(Schedulers.io())
+                .switchMap{
+                    weatherForecastRepository.searchByCityName(it)
+                }
+                .subscribe({
+                    Timber.e("$it")
+                    currentWeather.postValue(it)
+                }, Timber::e)
+        )
     }
 
     override fun onCleared() {
@@ -42,7 +55,7 @@ class CurrentWeatherForecastViewModel @AssistedInject constructor(
         compositeDisposable.dispose()
     }
 
-    fun initialiseCurrentCity(cityName: String){
+    fun initialiseCurrentCity(cityName: String) {
         Timber.e(cityName)
         search(cityName)
     }

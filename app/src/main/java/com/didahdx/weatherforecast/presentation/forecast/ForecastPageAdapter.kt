@@ -9,15 +9,21 @@ import com.didahdx.weatherforecast.presentation.weatherDetailsTabDay.DayWeatherD
 /**
  * @author Daniel Didah on 1/18/22
  */
-class ForecastPageAdapter(fragment: FragmentManager, lifecycle: Lifecycle)
-    : FragmentStateAdapter(fragment, lifecycle) {
+class ForecastPageAdapter(fragment: FragmentManager, lifecycle: Lifecycle) :
+    FragmentStateAdapter(fragment, lifecycle) {
 
     override fun getItemCount(): Int {
-       return WeatherTabTypes.values().size
+        return WeatherTabTypes.values().size
     }
 
     override fun createFragment(position: Int): Fragment {
-       val weatherTabTypes = WeatherTabTypes.values()[position]
+//        val weatherTabTypes = WeatherTabTypes.values()[position]
+        val weatherTabTypes= when(position){
+            0 -> WeatherTabTypes.TODAY
+            1 ->WeatherTabTypes.TOMORROW
+            2 ->WeatherTabTypes.LATTER
+            else->WeatherTabTypes.TODAY
+        }
         return DayWeatherDetailsFragment.newInstance(weatherTabTypes)
     }
 }

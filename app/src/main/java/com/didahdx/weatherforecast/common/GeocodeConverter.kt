@@ -20,7 +20,6 @@ object GeocodeConverter {
         latitude: String,
         longitude: String,
     ): String? {
-        var address = StringUtils.EMPTY
         var cityName = StringUtils.EMPTY
         var areaName = StringUtils.EMPTY
 
@@ -32,7 +31,6 @@ object GeocodeConverter {
             if (!CollectionUtils.isEmpty(addresses)) {
                 val fetchedAddress = addresses[0]
                 if (fetchedAddress.maxAddressLineIndex > -1) {
-                    address = fetchedAddress.getAddressLine(0)
                     fetchedAddress.locality?.let {
                         cityName = it
                     }
@@ -65,8 +63,8 @@ object GeocodeConverter {
             if (!CollectionUtils.isEmpty(addresses)) {
                 val fetchedAddress = addresses[0]
                 if (fetchedAddress.maxAddressLineIndex > -1) {
-                    longitude= fetchedAddress.longitude.toString()
-                    latitude= fetchedAddress.latitude.toString()
+                    longitude = fetchedAddress.longitude.toString()
+                    latitude = fetchedAddress.latitude.toString()
                 }
 
                 return LocationData(longitude, latitude)

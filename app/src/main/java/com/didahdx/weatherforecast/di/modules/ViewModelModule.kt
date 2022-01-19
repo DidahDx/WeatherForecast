@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.didahdx.weatherforecast.di.AssistedSavedStateViewModelFactory
 import com.didahdx.weatherforecast.di.ViewModelKey
 import com.didahdx.weatherforecast.presentation.forecast.CurrentWeatherForecastViewModel
+import com.didahdx.weatherforecast.presentation.weatherDetailsTabDay.DayWeatherDetailsViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -17,7 +18,11 @@ abstract class ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(CurrentWeatherForecastViewModel::class)
-    abstract fun bindMainActivityViewModel(homeViewModel: CurrentWeatherForecastViewModel.Factory): AssistedSavedStateViewModelFactory<out ViewModel>
+    abstract fun bindCurrentWeatherViewModel(currentWeatherFactory: CurrentWeatherForecastViewModel.Factory): AssistedSavedStateViewModelFactory<out ViewModel>
 
+    @Binds
+    @IntoMap
+    @ViewModelKey(DayWeatherDetailsViewModel::class)
+    abstract fun bindDayWeatherDetailViewModel(dayWeatherDetailsViewModel: DayWeatherDetailsViewModel):ViewModel
 
 }

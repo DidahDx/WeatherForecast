@@ -1,5 +1,6 @@
 package com.didahdx.weatherforecast.data.remote.dto
 
+import com.didahdx.weatherforecast.data.local.entities.CurrentEntity
 import com.squareup.moshi.Json
 
 data class Current(
@@ -20,7 +21,12 @@ data class Current(
     @Json(name = "wind_deg")
     val windDeg: Int,
     @Json(name = "wind_gust")
-    var windGust: Double ?,
+    var windGust: Double?,
     @Json(name = "wind_speed")
     val windSpeed: Double
-)
+) {
+
+    fun mapToCurrentEntity(timezoneOffSet:Int): CurrentEntity {
+        return CurrentEntity(dt, humidity, pressure, sunrise, sunset, temp, weather[0], windSpeed,timezoneOffSet)
+    }
+}

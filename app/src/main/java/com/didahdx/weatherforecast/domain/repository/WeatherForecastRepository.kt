@@ -1,6 +1,6 @@
 package com.didahdx.weatherforecast.domain.repository
 
-import com.didahdx.weatherforecast.common.Constants
+import com.didahdx.weatherforecast.data.local.entities.CurrentEntity
 import com.didahdx.weatherforecast.data.remote.dto.GeocodingDtoItem
 import com.didahdx.weatherforecast.data.remote.dto.OneCallWeatherForecast
 import io.reactivex.rxjava3.core.Observable
@@ -17,7 +17,7 @@ interface WeatherForecastRepository {
 
     fun getGeocoding(cityName: String, apiKey: String): Observable<List<GeocodingDtoItem>>
 
-    fun searchByCityName(cityName: String): Observable<OneCallWeatherForecast>
+    fun searchByCityName(cityName: String): Observable<CurrentEntity>
 
     fun searchByLatLong(latitude: String, longitude: String): Observable<OneCallWeatherForecast>
 }

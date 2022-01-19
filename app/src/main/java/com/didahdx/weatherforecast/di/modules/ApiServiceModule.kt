@@ -4,6 +4,9 @@ import android.app.Application
 import com.didahdx.weatherforecast.common.Constants
 import com.didahdx.weatherforecast.common.Constants.GEOCODING_API
 import com.didahdx.weatherforecast.common.Constants.WEATHER_API
+import com.didahdx.weatherforecast.data.local.dao.CurrentWeatherDao
+import com.didahdx.weatherforecast.data.local.dao.DailyWeatherDao
+import com.didahdx.weatherforecast.data.local.dao.HourlyWeatherDao
 import com.didahdx.weatherforecast.data.remote.api.GeocodingApi
 import com.didahdx.weatherforecast.data.remote.api.WeatherForecastApi
 import com.didahdx.weatherforecast.data.repository.WeatherForecastRepositoryImpl
@@ -98,8 +101,14 @@ class ApiServiceModule {
 
     @Provides
     @Singleton
-    fun provideWeatherForecastRepo(geocodingApi: GeocodingApi,weatherForecastApi: WeatherForecastApi): WeatherForecastRepository{
-        return WeatherForecastRepositoryImpl(weatherForecastApi, geocodingApi)
+    fun provideWeatherForecastRepo(
+        geocodingApi: GeocodingApi,
+        weatherForecastApi: WeatherForecastApi,
+        currentWeatherDao: CurrentWeatherDao,
+        dailyWeatherDao: DailyWeatherDao,
+        hourlyWeatherDao: HourlyWeatherDao
+    ): WeatherForecastRepository {
+        return WeatherForecastRepositoryImpl(weatherForecastApi, geocodingApi,currentWeatherDao, dailyWeatherDao, hourlyWeatherDao)
     }
 
 }

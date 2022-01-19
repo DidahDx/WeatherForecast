@@ -3,6 +3,7 @@ package com.didahdx.weatherforecast.di.components
 import com.didahdx.weatherforecast.di.FragmentScope
 import com.didahdx.weatherforecast.di.modules.ViewModelModule
 import com.didahdx.weatherforecast.presentation.forecast.CurrentWeatherForecastFragment
+import com.didahdx.weatherforecast.presentation.weatherDetailsTabDay.DayWeatherDetailsFragment
 import dagger.Subcomponent
 
 /**
@@ -19,5 +20,5 @@ interface FragmentSubComponent {
     }
 
     fun inject(currentWeatherForecastFragment: CurrentWeatherForecastFragment)
-
+    fun inject(dayWeatherDetailsFragment: DayWeatherDetailsFragment)
 }

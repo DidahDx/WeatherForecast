@@ -21,8 +21,10 @@ interface WeatherForecastApi {
     ): Observable<OneCallWeatherForecast>
 
     @GET("weather")
-    fun getCurrentWeather(@Query("q") cityName: String,
-                                 @Query("appid") apiKey: String)
+    fun getCurrentWeather(
+        @Query("q") cityName: String,
+        @Query("appid") apiKey: String
+    )
 
 
 }

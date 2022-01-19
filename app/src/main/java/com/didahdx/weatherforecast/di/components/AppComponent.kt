@@ -4,6 +4,7 @@ import android.app.Application
 import com.didahdx.weatherforecast.App
 import com.didahdx.weatherforecast.di.modules.ApiServiceModule
 import com.didahdx.weatherforecast.di.modules.CommonUiModule
+import com.didahdx.weatherforecast.di.modules.WeatherDatabaseModule
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -11,7 +12,10 @@ import javax.inject.Singleton
 /**
  * @author by Daniel Didah on 1/18/22
  */
-@Component(modules = [ApiServiceModule::class, AppSubComponents::class, CommonUiModule::class])
+@Component(
+    modules = [ApiServiceModule::class, AppSubComponents::class,
+        WeatherDatabaseModule::class, CommonUiModule::class]
+)
 @Singleton
 interface AppComponent {
 

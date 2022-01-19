@@ -11,8 +11,10 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
+import com.bumptech.glide.Glide
 import com.didahdx.weatherforecast.App
 import com.didahdx.weatherforecast.R
+import com.didahdx.weatherforecast.common.Constants
 import com.didahdx.weatherforecast.common.DateTimeConversion
 import com.didahdx.weatherforecast.common.GeocodeConverter
 import com.didahdx.weatherforecast.databinding.CurrentWeatherForecastFragmentBinding
@@ -89,9 +91,11 @@ class CurrentWeatherForecastFragment : BaseFragment() {
 
         viewModel.currentWeather.observe(viewLifecycleOwner, { currentWeather ->
             if (currentWeather != null) {
-                binding.tvTemp.text = resources.getString(R.string.temp,currentWeather.temp)
-                val sunrise = DateTimeConversion.convertToTime(currentWeather.sunrise.toLong())
-                val sunset = DateTimeConversion.convertToTime(currentWeather.sunset.toLong())
+                binding.tvTemp.text = resources.getString(R.string.temp, currentWeather.temp)
+                val sunrise = DateTimeConversion.convertToTime(currentWeather.sunrise,currentWeather.timezoneOffSet)
+                val sunset = DateTimeConversion.convertToTime(currentWeather.sunset,currentWeather.timezoneOffSet)
+                val lastUpdatedTime = DateTimeConversion.convertToTime(currentWeather.dt,currentWeather.timezoneOffSet)
+                binding.tvLastUpdateTime.text = resources.getString(R.string.last_updated_time, lastUpdatedTime)
                 binding.tvCurrentWeatherDetails.text = resources.getString(
                     R.string.current_weather,
                     currentWeather.windSpeed.toString(),
@@ -99,6 +103,16 @@ class CurrentWeatherForecastFragment : BaseFragment() {
                     currentWeather.humidity,
                     sunrise,
                     sunset
+                )
+
+                Glide.with(this)
+                    .load(String.format(Constants.WEATHER_ICON_URL, currentWeather.weather?.icon))
+                    .centerCrop()
+//                    .placeholder(R.drawable.loading_spinner)
+                    .into(binding.ivWeather)
+                binding.ivWeather.contentDescription = resources.getString(
+                    R.string.weather_image_description,
+                    currentWeather.weather?.description
                 )
             }
         })

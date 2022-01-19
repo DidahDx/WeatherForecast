@@ -1,19 +1,31 @@
 package com.didahdx.weatherforecast.data.remote.dto
 
+import com.didahdx.weatherforecast.data.local.entities.HourlyEntity
+import com.squareup.moshi.Json
+
 data class Hourly(
     val clouds: Int,
-    val dew_point: Double,
+    @Json(name = "dew_point")
+    val dewPoint: Double,
     val dt: Int,
-    val feels_like: Double,
+    @Json(name = "feels_like")
+    val feelsLike: Double,
     val humidity: Int,
-    val pop: Double ,
+    val pop: Double,
     val pressure: Int,
-    var rain: Rain ?,
+    var rain: Rain?,
     val temp: Double,
     val uvi: Double,
     val visibility: Int,
     val weather: List<Weather>,
-    val wind_deg: Int,
-    val wind_gust: Double,
-    val wind_speed: Double
-)
+    @Json(name = "wind_deg")
+    val windDeg: Int,
+    @Json(name = "wind_gust")
+    val windGust: Double ?,
+    @Json(name = "wind_speed")
+    val windSpeed: Double
+) {
+    fun mapToHourlyEntity(timezoneOffSet:Int): HourlyEntity {
+        return HourlyEntity(dt, humidity, pressure, temp, weather[0], windSpeed,timezoneOffSet)
+    }
+}

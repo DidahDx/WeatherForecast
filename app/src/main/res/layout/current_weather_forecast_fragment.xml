@@ -24,13 +24,13 @@
 
     <ImageView
         android:id="@+id/iv_weather"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="95dp"
+        android:layout_height="95dp"
         android:layout_margin="12dp"
         tools:src="@mipmap/ic_launcher"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="@string/weather_image" />
+        android:contentDescription="@string/weather_image_description" />
 
     <TextView
         android:id="@+id/tv_current_weather_details"
