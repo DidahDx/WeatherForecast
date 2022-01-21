@@ -15,6 +15,9 @@ class ForecastPageAdapter(fragment: FragmentManager, lifecycle: Lifecycle) :
     override fun getItemCount(): Int {
         return WeatherTabTypes.values().size
     }
+    private var fragmentList = arrayListOf<Fragment>(DayWeatherDetailsFragment.newInstance(WeatherTabTypes.TODAY),
+        DayWeatherDetailsFragment.newInstance( WeatherTabTypes.TOMORROW),
+        DayWeatherDetailsFragment.newInstance( WeatherTabTypes.LATTER))
 
     override fun createFragment(position: Int): Fragment {
 //        val weatherTabTypes = WeatherTabTypes.values()[position]
@@ -24,6 +27,6 @@ class ForecastPageAdapter(fragment: FragmentManager, lifecycle: Lifecycle) :
             2 ->WeatherTabTypes.LATTER
             else->WeatherTabTypes.TODAY
         }
-        return DayWeatherDetailsFragment.newInstance(weatherTabTypes)
+        return fragmentList[position]
     }
 }

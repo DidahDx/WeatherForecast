@@ -11,25 +11,31 @@ import com.didahdx.weatherforecast.App
 import com.didahdx.weatherforecast.databinding.DayWeatherDetailsFragmentBinding
 import com.didahdx.weatherforecast.presentation.BaseFragment
 import com.didahdx.weatherforecast.presentation.forecast.WeatherTabTypes
+import java.lang.IllegalArgumentException
 
 class DayWeatherDetailsFragment : BaseFragment() {
-
     companion object {
+        val WEATHER_TAB_TYPE="WEATHER_TAB_TYPE"
 
         fun newInstance(weatherTabTypes: WeatherTabTypes): DayWeatherDetailsFragment {
             val dayWeatherDetailsFragment = DayWeatherDetailsFragment()
-            dayWeatherDetailsFragment.setWeatherTabType(weatherTabTypes)
+            val args = Bundle()
+            args.putString(WEATHER_TAB_TYPE, weatherTabTypes.name)
+            dayWeatherDetailsFragment.arguments = args
             return dayWeatherDetailsFragment
         }
 
     }
 
-    private lateinit var weatherTabTypes: WeatherTabTypes
+    private var weatherTabTypes: WeatherTabTypes ? = null
 
-    fun setWeatherTabType(weatherTabTypes: WeatherTabTypes) {
+
+    private fun setWeatherTabType(weatherTabTypes: WeatherTabTypes) {
         this.weatherTabTypes = weatherTabTypes
     }
 
+    private val dailyWeatherAdapter = DailyWeatherAdapter()
+    private val hourlyWeatherAdapter = HourlyWeatherAdapter()
     private val viewModel: DayWeatherDetailsViewModel by viewModels()
 
     private var _binding: DayWeatherDetailsFragmentBinding? = null
@@ -42,22 +48,31 @@ class DayWeatherDetailsFragment : BaseFragment() {
         fragmentComponent.inject(this)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val tabTypes= arguments?.getString(WEATHER_TAB_TYPE, WeatherTabTypes.TODAY.name)
+            ?.let { WeatherTabTypes.valueOf(it) }
+        if (tabTypes != null) {
+            setWeatherTabType(tabTypes)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         _binding = DayWeatherDetailsFragmentBinding.inflate(inflater, container, false)
-        val dailyWeatherAdapter = DailyWeatherAdapter()
-        val hourlyWeatherAdapter = HourlyWeatherAdapter()
+
         binding.rvWeather.apply {
             layoutManager = LinearLayoutManager(binding.root.context)
             adapter = when (weatherTabTypes) {
                 WeatherTabTypes.TODAY -> hourlyWeatherAdapter
                 WeatherTabTypes.TOMORROW -> hourlyWeatherAdapter
                 WeatherTabTypes.LATTER -> dailyWeatherAdapter
+                else -> throw IllegalArgumentException("Adapter type not found")
             }
         }
-        viewModel.setWeatherTabType(weatherTabTypes)
+        weatherTabTypes?.let { viewModel.setWeatherTabType(it) }
         viewModel.hourlyWeather.observe(viewLifecycleOwner,{hourlyList->
             if(hourlyList!=null){
                 hourlyWeatherAdapter.submitList(hourlyList)

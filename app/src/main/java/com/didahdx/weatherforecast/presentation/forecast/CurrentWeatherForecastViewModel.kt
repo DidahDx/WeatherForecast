@@ -3,6 +3,7 @@ package com.didahdx.weatherforecast.presentation.forecast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.didahdx.weatherforecast.data.local.dao.CurrentWeatherDao
 import com.didahdx.weatherforecast.data.local.entities.CurrentEntity
 import com.didahdx.weatherforecast.data.remote.dto.Current
 import com.didahdx.weatherforecast.di.AssistedSavedStateViewModelFactory
@@ -20,6 +21,7 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 
 class CurrentWeatherForecastViewModel @AssistedInject constructor(
     private val weatherForecastRepository: WeatherForecastRepository,
+    private val currentWeatherDao: CurrentWeatherDao,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -30,6 +32,11 @@ class CurrentWeatherForecastViewModel @AssistedInject constructor(
     init {
         initRxSearch()
         search("Nairobi")
+        compositeDisposable.add(
+            currentWeatherDao.getAllCurrent()
+                .subscribeOn(Schedulers.io())
+                .subscribe(currentWeather::postValue,Timber::e)
+        )
     }
 
     private fun search(cityName: String) {
@@ -45,7 +52,7 @@ class CurrentWeatherForecastViewModel @AssistedInject constructor(
                 }
                 .subscribe({
                     Timber.e("$it")
-                    currentWeather.postValue(it)
+//                    currentWeather.postValue(it)
                 }, Timber::e)
         )
     }
@@ -53,6 +60,7 @@ class CurrentWeatherForecastViewModel @AssistedInject constructor(
     override fun onCleared() {
         super.onCleared()
         compositeDisposable.dispose()
+        weatherForecastRepository.clear()
     }
 
     fun initialiseCurrentCity(cityName: String) {

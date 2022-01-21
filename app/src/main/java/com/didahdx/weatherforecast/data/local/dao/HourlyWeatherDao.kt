@@ -17,10 +17,10 @@ interface HourlyWeatherDao {
     @Insert(onConflict = REPLACE)
     fun addAllHourlyEntity(hourlyEntity: List<HourlyEntity>):Completable
 
-    @Query("SELECT * FROM HourlyEntity WHERE id <= 23")
+    @Query("SELECT * FROM HourlyEntity LIMIT 24")
     fun getTodayHourlyWeather(): Observable<List<HourlyEntity>>
 
-    @Query("SELECT * FROM HourlyEntity WHERE id > 23")
+    @Query("SELECT * FROM HourlyEntity ORDER BY id DESC LIMIT 24")
     fun getTomorrowHourlyWeather(): Observable<List<HourlyEntity>>
 
     @Query("DELETE FROM HourlyEntity")

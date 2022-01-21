@@ -11,6 +11,8 @@ import com.didahdx.weatherforecast.data.remote.dto.GeocodingDtoItem
 import com.didahdx.weatherforecast.data.remote.dto.OneCallWeatherForecast
 import com.didahdx.weatherforecast.domain.repository.WeatherForecastRepository
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -25,7 +27,7 @@ class WeatherForecastRepositoryImpl @Inject constructor(
     private val hourlyWeatherDao: HourlyWeatherDao
 ) : WeatherForecastRepository {
 
-
+    val compositeDisposable= CompositeDisposable()
     override fun getWeatherForecastByCity(
         latitude: String,
         longitude: String,
@@ -60,12 +62,12 @@ class WeatherForecastRepositoryImpl @Inject constructor(
                     Constants.API_KEY
                 )
             }.switchMap { oneCallWeather ->
-                currentWeatherDao.deleteAll().blockingAwait()
-                dailyWeatherDao.deleteAll().blockingAwait()
-                hourlyWeatherDao.deleteAll().blockingAwait()
-                currentWeatherDao.addCurrent(oneCallWeather.current.mapToCurrentEntity(oneCallWeather.timezone_offset)).blockingAwait()
-                dailyWeatherDao.addAllDailyEntity(oneCallWeather.daily.map { it.mapToDailyEntity(oneCallWeather.timezone_offset) }).blockingAwait()
-                hourlyWeatherDao.addAllHourlyEntity(oneCallWeather.hourly.map{it.mapToHourlyEntity(oneCallWeather.timezone_offset)}).blockingAwait()
+               compositeDisposable += currentWeatherDao.deleteAll().subscribe()
+                compositeDisposable +=  dailyWeatherDao.deleteAll().subscribe()
+                compositeDisposable += hourlyWeatherDao.deleteAll().subscribe()
+                compositeDisposable +=  currentWeatherDao.addCurrent(oneCallWeather.current.mapToCurrentEntity(oneCallWeather.timezone_offset)).subscribe()
+                compositeDisposable +=  dailyWeatherDao.addAllDailyEntity(oneCallWeather.daily.map { it.mapToDailyEntity(oneCallWeather.timezone_offset) }).subscribe()
+                compositeDisposable +=  hourlyWeatherDao.addAllHourlyEntity(oneCallWeather.hourly.map{it.mapToHourlyEntity(oneCallWeather.timezone_offset)}).subscribe()
                 currentWeatherDao.getAllCurrent()
             }
     }
@@ -78,4 +80,7 @@ class WeatherForecastRepositoryImpl @Inject constructor(
     }
 
 
+    override fun clear(){
+        compositeDisposable.dispose()
+    }
 }
