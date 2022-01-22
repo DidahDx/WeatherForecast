@@ -2,13 +2,16 @@ package com.didahdx.weatherforecast.presentation.forecast
 
 
 import android.Manifest
+import android.app.SearchManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.widget.SearchView
+import android.widget.SearchView
+
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
@@ -125,20 +128,25 @@ class CurrentWeatherForecastFragment : BaseFragment() {
             tab.text = tabTitles[position]
             binding.weatherPager.setCurrentItem(tab.position, true)
         }.attach()
-
+viewModel.search("Nairobi")
         return binding.root
     }
 
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.search_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
+//        super.onCreateOptionsMenu(menu, inflater)
 
+        val searchManager = context?.getSystemService(Context.SEARCH_SERVICE) as SearchManager
         val searchItem = menu.findItem(R.id.action_search)
         val searchView: SearchView = searchItem.actionView as SearchView
+
+        searchView.apply {
+            setSearchableInfo(searchManager.getSearchableInfo(activity?.componentName))
+            isIconifiedByDefault = false
+        }
+
         searchView.queryHint = getString(R.string.search_by_city_name)
-
-
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
             override fun onQueryTextChange(query: String?): Boolean {
@@ -151,7 +159,6 @@ class CurrentWeatherForecastFragment : BaseFragment() {
                 return true
             }
         })
-
     }
 
 

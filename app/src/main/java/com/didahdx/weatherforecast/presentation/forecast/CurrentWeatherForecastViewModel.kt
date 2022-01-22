@@ -31,7 +31,6 @@ class CurrentWeatherForecastViewModel @AssistedInject constructor(
 
     init {
         initRxSearch()
-        search("Nairobi")
         compositeDisposable.add(
             currentWeatherDao.getAllCurrent()
                 .subscribeOn(Schedulers.io())
@@ -39,7 +38,7 @@ class CurrentWeatherForecastViewModel @AssistedInject constructor(
         )
     }
 
-    private fun search(cityName: String) {
+     fun search(cityName: String) {
        searchPublishSubject.onNext(cityName)
     }
 
@@ -47,6 +46,7 @@ class CurrentWeatherForecastViewModel @AssistedInject constructor(
         compositeDisposable.add(
             searchPublishSubject
                 .subscribeOn(Schedulers.io())
+                .distinctUntilChanged()
                 .switchMap{
                     weatherForecastRepository.searchByCityName(it)
                 }

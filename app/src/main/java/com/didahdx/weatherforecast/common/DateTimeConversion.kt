@@ -12,15 +12,15 @@ object DateTimeConversion {
     private const val DATE_TIME_FORMAT = "EEE dd MMM yyyy hh:mm aaa"
 
     fun convertToTime(milliseconds: Int,timeZoneOffSet:Int): String {
-        val time: Int= (milliseconds * 1000).plus(timeZoneOffSet * 1000)
-        val date = Date(time.toLong())
+        val time: Long= (milliseconds.toLong() * 1000L) + (timeZoneOffSet.toLong() * 1000L)
+        val date = Date(time)
         val formatter: DateFormat = SimpleDateFormat(TIME_FORMAT, Locale.getDefault())
         return formatter.format(date)
     }
 
     fun convertToDateTime(milliseconds: Int,timeZoneOffSet: Int): String {
-        val time: Int= (milliseconds * 1000).plus(timeZoneOffSet * 1000)
-        val date = Date(time.toLong())
+        val time: Long= (milliseconds.toLong() * 1000L) + (timeZoneOffSet.toLong() * 1000L)
+        val date = Date(time)
         val formatter: DateFormat = SimpleDateFormat(DATE_TIME_FORMAT, Locale.getDefault())
         return formatter.format(date)
     }
