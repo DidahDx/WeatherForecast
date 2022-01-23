@@ -31,7 +31,7 @@ data class Daily(
     val windSpeed: Double
 ) {
 
-    fun mapToDailyEntity(timezoneOffSet:Int): DailyEntity {
-        return DailyEntity(dt, pressure,humidity, temp.min, weather[0], windSpeed,timezoneOffSet)
+    fun mapToDailyEntity(timezoneOffSet: Int): DailyEntity {
+        return DailyEntity(dt, pressure, humidity, temp.min, weather[0], windSpeed, timezoneOffSet)
     }
 }

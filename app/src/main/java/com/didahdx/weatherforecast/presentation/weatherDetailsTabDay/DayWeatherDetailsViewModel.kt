@@ -10,6 +10,7 @@ import com.didahdx.weatherforecast.presentation.forecast.WeatherTabTypes
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
+import java.util.*
 import javax.inject.Inject
 
 class DayWeatherDetailsViewModel @Inject constructor(
@@ -34,7 +35,10 @@ class DayWeatherDetailsViewModel @Inject constructor(
                 compositeDisposable.add(
                     hourlyWeatherDao.getTomorrowHourlyWeather()
                         .subscribeOn(Schedulers.io())
-                        .subscribe(hourlyWeather::postValue, Timber::e)
+                        .subscribe({
+                           Collections.reverse(it)
+                            hourlyWeather.postValue(it)
+                        }, Timber::e)
                 )
             }
             WeatherTabTypes.LATTER -> {

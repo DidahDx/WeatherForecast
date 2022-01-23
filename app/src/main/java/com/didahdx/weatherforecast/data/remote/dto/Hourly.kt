@@ -21,11 +21,11 @@ data class Hourly(
     @Json(name = "wind_deg")
     val windDeg: Int,
     @Json(name = "wind_gust")
-    val windGust: Double ?,
+    val windGust: Double?,
     @Json(name = "wind_speed")
     val windSpeed: Double
 ) {
-    fun mapToHourlyEntity(timezoneOffSet:Int): HourlyEntity {
-        return HourlyEntity(dt, humidity, pressure, temp, weather[0], windSpeed,timezoneOffSet)
+    fun mapToHourlyEntity(timezoneOffSet: Int): HourlyEntity {
+        return HourlyEntity(dt, humidity, pressure, temp, weather[0], windSpeed, timezoneOffSet)
     }
 }

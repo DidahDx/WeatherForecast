@@ -1,10 +1,8 @@
 package com.didahdx.weatherforecast.data.local
 
 import androidx.room.TypeConverter
-import androidx.room.TypeConverters
 import com.didahdx.weatherforecast.data.remote.dto.Weather
 import com.squareup.moshi.JsonAdapter
-
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
@@ -17,12 +15,12 @@ class WeatherConverter {
     private val jsonAdapter: JsonAdapter<Weather> = moshi.adapter(Weather::class.java)
 
     @TypeConverter
-    fun fromWeather(weather: Weather):String{
+    fun fromWeather(weather: Weather): String {
         return jsonAdapter.toJson(weather)
     }
 
     @TypeConverter
-    fun toWeather(weather:String):Weather?{
+    fun toWeather(weather: String): Weather? {
         return jsonAdapter.fromJson(weather)
     }
 }

@@ -11,11 +11,10 @@ import com.didahdx.weatherforecast.App
 import com.didahdx.weatherforecast.databinding.DayWeatherDetailsFragmentBinding
 import com.didahdx.weatherforecast.presentation.BaseFragment
 import com.didahdx.weatherforecast.presentation.forecast.WeatherTabTypes
-import java.lang.IllegalArgumentException
 
 class DayWeatherDetailsFragment : BaseFragment() {
     companion object {
-        val WEATHER_TAB_TYPE="WEATHER_TAB_TYPE"
+        val WEATHER_TAB_TYPE = "WEATHER_TAB_TYPE"
 
         fun newInstance(weatherTabTypes: WeatherTabTypes): DayWeatherDetailsFragment {
             val dayWeatherDetailsFragment = DayWeatherDetailsFragment()
@@ -27,7 +26,7 @@ class DayWeatherDetailsFragment : BaseFragment() {
 
     }
 
-    private var weatherTabTypes: WeatherTabTypes ? = null
+    private var weatherTabTypes: WeatherTabTypes? = null
 
 
     private fun setWeatherTabType(weatherTabTypes: WeatherTabTypes) {
@@ -50,7 +49,7 @@ class DayWeatherDetailsFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val tabTypes= arguments?.getString(WEATHER_TAB_TYPE, WeatherTabTypes.TODAY.name)
+        val tabTypes = arguments?.getString(WEATHER_TAB_TYPE, WeatherTabTypes.TODAY.name)
             ?.let { WeatherTabTypes.valueOf(it) }
         if (tabTypes != null) {
             setWeatherTabType(tabTypes)
@@ -73,15 +72,15 @@ class DayWeatherDetailsFragment : BaseFragment() {
             }
         }
         weatherTabTypes?.let { viewModel.setWeatherTabType(it) }
-        viewModel.hourlyWeather.observe(viewLifecycleOwner,{hourlyList->
-            if(hourlyList!=null){
+        viewModel.hourlyWeather.observe(viewLifecycleOwner, { hourlyList ->
+            if (hourlyList != null) {
                 hourlyWeatherAdapter.submitList(hourlyList)
             }
         })
 
-        viewModel.dailyWeather.observe(viewLifecycleOwner,{dailyList->
-            if(dailyList!=null){
-             dailyWeatherAdapter.submitList(dailyList)
+        viewModel.dailyWeather.observe(viewLifecycleOwner, { dailyList ->
+            if (dailyList != null) {
+                dailyWeatherAdapter.submitList(dailyList)
             }
         })
         return binding.root
