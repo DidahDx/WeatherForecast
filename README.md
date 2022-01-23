@@ -25,7 +25,8 @@ API_KEY=ADD_YOUR_API_KEY_HERE
 ```
 
 ## ScreenShots
- 
+   <img src="art/Screenshot_1.png" width="200" style="max-width:100%;">  <img src="art/Screenshot_2.png" width="200" style="max-width:100%;">  <img src="art/Screenshot_3.png" width="200" style="max-width:100%;"> 
+   <img src="art/Screenshot_4.png" width="200" style="max-width:100%;">  <img src="art/Screenshot_5.png" width="200" style="max-width:100%;">  <img src="art/Screenshot_6.png" width="200" style="max-width:100%;"> 
 
 ## Libraries
 
