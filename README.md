@@ -5,7 +5,7 @@ Sample Weather Forecast Android Application
 
 - [App](#app)
 - [Architecture](#architecture)
-- [Project Setup](#project setup)
+- [Project Setup](#project-setup)
 - [ScreenShots](#screenshots)
 - [Libraries](#libraries)
 
