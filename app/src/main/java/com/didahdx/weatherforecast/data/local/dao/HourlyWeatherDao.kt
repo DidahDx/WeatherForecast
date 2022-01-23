@@ -15,7 +15,7 @@ import io.reactivex.rxjava3.core.Observable
 interface HourlyWeatherDao {
 
     @Insert(onConflict = REPLACE)
-    fun addAllHourlyEntity(hourlyEntity: List<HourlyEntity>):Completable
+    fun addAllHourlyEntity(hourlyEntity: List<HourlyEntity>): Completable
 
     @Query("SELECT * FROM HourlyEntity LIMIT 24")
     fun getTodayHourlyWeather(): Observable<List<HourlyEntity>>
@@ -24,5 +24,5 @@ interface HourlyWeatherDao {
     fun getTomorrowHourlyWeather(): Observable<List<HourlyEntity>>
 
     @Query("DELETE FROM HourlyEntity")
-    fun deleteAll():Completable
+    fun deleteAll(): Completable
 }

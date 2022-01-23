@@ -4,14 +4,18 @@ package com.didahdx.weatherforecast.presentation.forecast
 import android.Manifest
 import android.app.SearchManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
+import android.os.Looper
+import android.provider.Settings
+import android.text.TextUtils
 import android.view.*
-import android.widget.SearchView
-
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
@@ -20,13 +24,18 @@ import com.didahdx.weatherforecast.R
 import com.didahdx.weatherforecast.common.Constants
 import com.didahdx.weatherforecast.common.DateTimeConversion
 import com.didahdx.weatherforecast.common.GeocodeConverter
+import com.didahdx.weatherforecast.data.local.entities.LocationEntity
 import com.didahdx.weatherforecast.databinding.CurrentWeatherForecastFragmentBinding
 import com.didahdx.weatherforecast.presentation.BaseFragment
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.didahdx.weatherforecast.presentation.MainActivity
+import com.didahdx.weatherforecast.presentation.extension.hide
+import com.didahdx.weatherforecast.presentation.extension.show
+import com.didahdx.weatherforecast.presentation.extension.snackBar
+import com.google.android.gms.location.*
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import timber.log.Timber
+import java.util.*
 
 
 class CurrentWeatherForecastFragment : BaseFragment() {
@@ -40,6 +49,8 @@ class CurrentWeatherForecastFragment : BaseFragment() {
 
     private val viewModel: CurrentWeatherForecastViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationRequest: LocationRequest
+    private var locationCallback: LocationCallback?= null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -55,6 +66,17 @@ class CurrentWeatherForecastFragment : BaseFragment() {
         val mContext = context
         if (mContext != null) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext)
+            buildLocationRequest()
+            buildLocationCallBack()
+            requestLocationPermission()
+            requestLocationUpdate()
+        }
+
+    }
+
+    private fun requestLocationUpdate(){
+        val mContext = context
+        if (mContext != null) {
             if (ActivityCompat.checkSelfPermission(
                     mContext,
                     Manifest.permission.ACCESS_FINE_LOCATION
@@ -63,23 +85,17 @@ class CurrentWeatherForecastFragment : BaseFragment() {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
-                fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-                    // Got last known location. In some rare situations this can be null.
-                    if (location != null) {
-                        val cityName = GeocodeConverter.getCityName(
-                            mContext,
-                            location.latitude.toString(),
-                            location.latitude.toString()
+                locationCallback?.let {
+                    Looper.myLooper()?.let { looper ->
+                        fusedLocationClient.requestLocationUpdates(
+                            locationRequest,
+                            it,
+                            looper
                         )
-                        if (cityName != null) {
-//                            viewModel.initialiseCurrentCity(cityName)
-                        }
                     }
-
                 }
             }
         }
-
     }
 
     override fun onCreateView(
@@ -92,13 +108,42 @@ class CurrentWeatherForecastFragment : BaseFragment() {
         val forecastpager = ForecastPageAdapter(fm, lifecycle)
         binding.weatherPager.adapter = forecastpager
 
+        viewModel.currentSearch.observe(viewLifecycleOwner, { currentSearch ->
+            if (currentSearch != null) {
+                requireNotNull(activity as MainActivity).setToolBarTitle("${currentSearch.name},${currentSearch.country.
+                lowercase(Locale.getDefault())}")
+            }
+        })
+
+        viewModel.errorMessage.observe(viewLifecycleOwner,{errorMessage ->
+            if(errorMessage!=null){
+                binding.root.snackBar(getString(R.string.search_error))
+            }
+        })
+
+        viewModel.isLoading.observe(viewLifecycleOwner,{isLoading ->
+            if(isLoading!=null){
+                showProgressBar(isLoading)
+            }
+        })
+
         viewModel.currentWeather.observe(viewLifecycleOwner, { currentWeather ->
             if (currentWeather != null) {
                 binding.tvTemp.text = resources.getString(R.string.temp, currentWeather.temp)
-                val sunrise = DateTimeConversion.convertToTime(currentWeather.sunrise,currentWeather.timezoneOffSet)
-                val sunset = DateTimeConversion.convertToTime(currentWeather.sunset,currentWeather.timezoneOffSet)
-                val lastUpdatedTime = DateTimeConversion.convertToTime(currentWeather.dt,currentWeather.timezoneOffSet)
-                binding.tvLastUpdateTime.text = resources.getString(R.string.last_updated_time, lastUpdatedTime)
+                val sunrise = DateTimeConversion.convertToTime(
+                    currentWeather.sunrise,
+                    currentWeather.timezoneOffSet
+                )
+                val sunset = DateTimeConversion.convertToTime(
+                    currentWeather.sunset,
+                    currentWeather.timezoneOffSet
+                )
+                val lastUpdatedTime = DateTimeConversion.convertToTime(
+                    currentWeather.dt,
+                    currentWeather.timezoneOffSet
+                )
+                binding.tvLastUpdateTime.text =
+                    resources.getString(R.string.last_updated_time, lastUpdatedTime)
                 binding.tvCurrentWeatherDetails.text = resources.getString(
                     R.string.current_weather,
                     currentWeather.windSpeed.toString(),
@@ -128,14 +173,19 @@ class CurrentWeatherForecastFragment : BaseFragment() {
             tab.text = tabTitles[position]
             binding.weatherPager.setCurrentItem(tab.position, true)
         }.attach()
-viewModel.search("Nairobi")
+
+
+        if (viewModel.searchMutableLiveData.value != null) {
+            val search: String = viewModel.searchMutableLiveData.value!!
+            viewModel.search(search)
+        }
+
         return binding.root
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.search_menu, menu)
-//        super.onCreateOptionsMenu(menu, inflater)
+        super.onCreateOptionsMenu(menu, inflater)
 
         val searchManager = context?.getSystemService(Context.SEARCH_SERVICE) as SearchManager
         val searchItem = menu.findItem(R.id.action_search)
@@ -143,27 +193,123 @@ viewModel.search("Nairobi")
 
         searchView.apply {
             setSearchableInfo(searchManager.getSearchableInfo(activity?.componentName))
-            isIconifiedByDefault = false
         }
 
         searchView.queryHint = getString(R.string.search_by_city_name)
+        if (viewModel.currentSearch.value != null) {
+            val search: LocationEntity = viewModel.currentSearch.value!!
+            requireNotNull(activity as MainActivity).setToolBarTitle("${search.name},${search.country.
+            lowercase(Locale.getDefault())}")
+        }
+
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
             override fun onQueryTextChange(query: String?): Boolean {
-                Timber.e("$query")
-                return true
+                return false
             }
 
             override fun onQueryTextSubmit(query: String?): Boolean {
-                Timber.e("$query")
+                query?.let { viewModel.search(it) }
                 return true
             }
         })
     }
 
+    private fun buildLocationRequest() {
+        locationRequest = LocationRequest.create()
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationRequest.interval = 1000
+    }
+
+    private fun buildLocationCallBack() {
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                for (location in locationResult.locations) {
+                    val latitude = location.latitude.toString()
+                    val longitude = location.longitude.toString()
+
+                    val cityName =
+                        context?.let { GeocodeConverter.getCityName(it, latitude, longitude) }
+                    Timber.e("$latitude $longitude $cityName")
+                    cityName?.let { viewModel.initialiseCurrentCity(it) }
+                }
+            }
+        }
+    }
+
+    private fun showProgressBar(shouldShowProgress:Boolean){
+        if(shouldShowProgress){
+            binding.progressBar.show()
+            binding.clCurrentWeather.hide()
+            binding.tabLayout.hide()
+            binding.weatherPager.hide()
+            return
+        }
+        binding.progressBar.hide()
+        binding.clCurrentWeather.show()
+        binding.tabLayout.show()
+        binding.weatherPager.show()
+    }
+
+
+    private fun requestLocationPermission() {
+        val locationPermissionRequest = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+
+            when {
+                permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true -> {
+                    // Precise location access granted.
+                    requestLocationUpdate()
+                    val mContext= context ?: return@registerForActivityResult
+                    if (!isLocationEnabled(mContext)) showGPSNotEnabledDialog(mContext)
+                }
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true -> {
+                    // Only approximate location access granted.
+                    requestLocationUpdate()
+                    val mContext= context ?: return@registerForActivityResult
+                    if (!isLocationEnabled(mContext)) showGPSNotEnabledDialog(mContext)
+                }
+                else -> {
+                    // No location access granted.
+                }
+            }
+        }
+
+        locationPermissionRequest.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
+
+    }
+
+
+    private fun showGPSNotEnabledDialog(context: Context) {
+        AlertDialog.Builder(context)
+            .setTitle(getString(R.string.enable_gps))
+            .setMessage(getString(R.string.required_for_this_app))
+            .setCancelable(false)
+            .setPositiveButton(getString(R.string.enable_now)) { _, _ ->
+                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            }
+            .show()
+    }
+
+
+    private fun isLocationEnabled(context: Context): Boolean {
+        val locationManager: LocationManager =
+            context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
 
     override fun onDestroyView() {
         binding.weatherPager.adapter = null
+        locationCallback?.let { fusedLocationClient.removeLocationUpdates(it) }
+        locationCallback= null
         super.onDestroyView()
         _binding = null
     }

@@ -23,8 +23,10 @@ class HourlyWeatherAdapter :
 
         fun bind(hourly: HourlyEntity) {
             binding.tvTemp.text = binding.root.context.getString(R.string.temp, hourly.temp)
-            binding.tvTime.text= DateTimeConversion.convertToDateTime(hourly.dt,hourly.timezoneOffSet)
-            binding.tvWeatherDescription.text= binding.root.context.getString(R.string.current_weather_status,
+            binding.tvTime.text =
+                DateTimeConversion.convertToDateTime(hourly.dt, hourly.timezoneOffSet)
+            binding.tvWeatherDescription.text = binding.root.context.getString(
+                R.string.current_weather_status,
                 hourly.windSpeed.toString(),
                 hourly.pressure,
                 hourly.humidity,

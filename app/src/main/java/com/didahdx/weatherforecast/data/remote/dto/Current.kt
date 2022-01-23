@@ -26,7 +26,17 @@ data class Current(
     val windSpeed: Double
 ) {
 
-    fun mapToCurrentEntity(timezoneOffSet:Int): CurrentEntity {
-        return CurrentEntity(dt, humidity, pressure, sunrise, sunset, temp, weather[0], windSpeed,timezoneOffSet)
+    fun mapToCurrentEntity(timezoneOffSet: Int): CurrentEntity {
+        return CurrentEntity(
+            dt,
+            humidity,
+            pressure,
+            sunrise,
+            sunset,
+            temp,
+            weather[0],
+            windSpeed,
+            timezoneOffSet
+        )
     }
 }

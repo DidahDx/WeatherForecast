@@ -23,8 +23,10 @@ class DailyWeatherAdapter :
 
         fun bind(daily: DailyEntity) {
             binding.tvTemp.text = binding.root.context.getString(R.string.temp, daily.temp)
-            binding.tvTime.text= DateTimeConversion.convertToDateTime(daily.dt,daily.timezoneOffSet)
-            binding.tvWeatherDescription.text= binding.root.context.getString(R.string.current_weather_status,
+            binding.tvTime.text =
+                DateTimeConversion.convertToDateTime(daily.dt, daily.timezoneOffSet)
+            binding.tvWeatherDescription.text = binding.root.context.getString(
+                R.string.current_weather_status,
                 daily.windSpeed.toString(),
                 daily.pressure,
                 daily.humidity,

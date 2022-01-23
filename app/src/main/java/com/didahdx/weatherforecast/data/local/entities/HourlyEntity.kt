@@ -15,8 +15,8 @@ data class HourlyEntity(
     val temp: Double,
     val weather: Weather?,
     val windSpeed: Double,
-    val timezoneOffSet:Int
-){
+    val timezoneOffSet: Int
+) {
     @PrimaryKey(autoGenerate = true)
-    var id: Int=0
+    var id: Int = 0
 }

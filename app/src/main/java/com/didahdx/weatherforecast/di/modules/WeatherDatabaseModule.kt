@@ -40,4 +40,8 @@ class WeatherDatabaseModule {
     @Singleton
     fun provideHourlyWeatherDao(weatherDatabase: WeatherDatabase) =
         weatherDatabase.getHourlyWeatherDao()
+
+    @Provides
+    @Singleton
+    fun provideLocationDao(weatherDatabase: WeatherDatabase)= weatherDatabase.getLocationDao()
 }
