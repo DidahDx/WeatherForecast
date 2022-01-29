@@ -36,7 +36,6 @@ class WeatherForecastRepositoryImpl @Inject constructor(
     override fun searchByCityName(cityName: String):Completable {
         return geocodingApi
             .getGeocoding(cityName, Constants.API_KEY)
-            .subscribeOn(Schedulers.io())
             .map {
                 it[0]
             }.switchMap { geocodeDetails ->
@@ -46,7 +45,7 @@ class WeatherForecastRepositoryImpl @Inject constructor(
                     .getWeatherForecastByLatitudeLongitude(
                         geocodeDetails.lat.toString(),
                         geocodeDetails.lon.toString(),
-                        "",
+                        "minutely",
                         Constants.API_KEY
                     ))
             }.flatMapCompletable { oneCallWeather ->

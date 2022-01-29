@@ -83,27 +83,6 @@ class CurrentWeatherForecastViewModel @AssistedInject constructor(
                     errorMessage.postValue(error.localizedMessage)
                     isLoading.postValue(false)
                 })
-//                .flatMapCompletable {
-//                    Timber.e(it)
-//
-//                        return@flatMapCompletable searchForecast.byCityNameForecast(it)
-//                            .onErrorComplete { error ->
-//                                Timber.e(error)
-//                                errorMessage.postValue(error.localizedMessage)
-//                                isLoading.postValue(false)
-//                                true
-//                            }.doOnComplete {
-//                                isLoading.postValue(false)
-//                            }
-//                }
-//                .subscribeBy({
-//                    Timber.e("$it")
-//                    Timber.e(it)
-//                    isLoading.postValue(false)
-//                    errorMessage.postValue(it.localizedMessage)
-//                }, onComplete = {
-//                    isLoading.postValue(false)
-//                })
         )
     }
 
