@@ -13,6 +13,7 @@ import com.didahdx.weatherforecast.domain.usecases.SearchForecast
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -67,22 +68,42 @@ class CurrentWeatherForecastViewModel @AssistedInject constructor(
                 }
                 .switchMap {
                     Timber.e(it)
-                    searchForecast.byCityNameForecast(it)
+                    return@switchMap searchForecast.byCityNameForecast(it)
+                        .andThen(Observable.just(Unit))
                         .onErrorComplete { error ->
-                        Timber.e(error)
-                        errorMessage.postValue(error.localizedMessage)
-                        isLoading.postValue(false)
-                        true
-                    }
-                }
-                .subscribe({
-                    Timber.e("$it")
+                                Timber.e(error)
+                                errorMessage.postValue(error.localizedMessage)
+                                isLoading.postValue(false)
+                                true
+                            }
+                }.subscribe({
                     isLoading.postValue(false)
                 }, { error ->
                     Timber.e(error)
-                    isLoading.postValue(false)
                     errorMessage.postValue(error.localizedMessage)
+                    isLoading.postValue(false)
                 })
+//                .flatMapCompletable {
+//                    Timber.e(it)
+//
+//                        return@flatMapCompletable searchForecast.byCityNameForecast(it)
+//                            .onErrorComplete { error ->
+//                                Timber.e(error)
+//                                errorMessage.postValue(error.localizedMessage)
+//                                isLoading.postValue(false)
+//                                true
+//                            }.doOnComplete {
+//                                isLoading.postValue(false)
+//                            }
+//                }
+//                .subscribeBy({
+//                    Timber.e("$it")
+//                    Timber.e(it)
+//                    isLoading.postValue(false)
+//                    errorMessage.postValue(it.localizedMessage)
+//                }, onComplete = {
+//                    isLoading.postValue(false)
+//                })
         )
     }
 

@@ -4,6 +4,7 @@ import com.didahdx.weatherforecast.data.local.entities.CurrentEntity
 import com.didahdx.weatherforecast.data.local.entities.DailyEntity
 import com.didahdx.weatherforecast.data.local.entities.HourlyEntity
 import com.didahdx.weatherforecast.data.local.entities.LocationEntity
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 
 /**
@@ -11,7 +12,7 @@ import io.reactivex.rxjava3.core.Observable
  */
 interface WeatherForecastRepository {
 
-    fun searchByCityName(cityName: String): Observable<CurrentEntity>
+    fun searchByCityName(cityName: String): Completable
 
     fun getCurrentForecast(): Observable<CurrentEntity>
 
@@ -23,5 +24,4 @@ interface WeatherForecastRepository {
 
     fun getFiveDaysForecast(): Observable<List<DailyEntity>>
 
-    fun clear()
 }

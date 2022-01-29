@@ -119,6 +119,7 @@ class CurrentWeatherForecastFragment : BaseFragment() {
 
         viewModel.errorMessage.observe(viewLifecycleOwner, { errorMessage ->
             if (errorMessage != null) {
+                Timber.e(errorMessage)
                 binding.root.snackBar(getString(R.string.search_error))
             }
         })
