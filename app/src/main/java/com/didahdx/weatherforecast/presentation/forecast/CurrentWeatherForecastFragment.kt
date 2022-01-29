@@ -10,7 +10,6 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
-import android.text.TextUtils
 import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -50,7 +49,7 @@ class CurrentWeatherForecastFragment : BaseFragment() {
     private val viewModel: CurrentWeatherForecastViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
-    private var locationCallback: LocationCallback?= null
+    private var locationCallback: LocationCallback? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -74,7 +73,7 @@ class CurrentWeatherForecastFragment : BaseFragment() {
 
     }
 
-    private fun requestLocationUpdate(){
+    private fun requestLocationUpdate() {
         val mContext = context
         if (mContext != null) {
             if (ActivityCompat.checkSelfPermission(
@@ -110,19 +109,22 @@ class CurrentWeatherForecastFragment : BaseFragment() {
 
         viewModel.currentSearch.observe(viewLifecycleOwner, { currentSearch ->
             if (currentSearch != null) {
-                requireNotNull(activity as MainActivity).setToolBarTitle("${currentSearch.name},${currentSearch.country.
-                lowercase(Locale.getDefault())}")
+                requireNotNull(activity as MainActivity).setToolBarTitle(
+                    "${currentSearch.name},${
+                        currentSearch.country.lowercase(Locale.getDefault())
+                    }"
+                )
             }
         })
 
-        viewModel.errorMessage.observe(viewLifecycleOwner,{errorMessage ->
-            if(errorMessage!=null){
+        viewModel.errorMessage.observe(viewLifecycleOwner, { errorMessage ->
+            if (errorMessage != null) {
                 binding.root.snackBar(getString(R.string.search_error))
             }
         })
 
-        viewModel.isLoading.observe(viewLifecycleOwner,{isLoading ->
-            if(isLoading!=null){
+        viewModel.isLoading.observe(viewLifecycleOwner, { isLoading ->
+            if (isLoading != null) {
                 showProgressBar(isLoading)
             }
         })
@@ -198,8 +200,11 @@ class CurrentWeatherForecastFragment : BaseFragment() {
         searchView.queryHint = getString(R.string.search_by_city_name)
         if (viewModel.currentSearch.value != null) {
             val search: LocationEntity = viewModel.currentSearch.value!!
-            requireNotNull(activity as MainActivity).setToolBarTitle("${search.name},${search.country.
-            lowercase(Locale.getDefault())}")
+            requireNotNull(activity as MainActivity).setToolBarTitle(
+                "${search.name},${
+                    search.country.lowercase(Locale.getDefault())
+                }"
+            )
         }
 
 
@@ -238,8 +243,8 @@ class CurrentWeatherForecastFragment : BaseFragment() {
         }
     }
 
-    private fun showProgressBar(shouldShowProgress:Boolean){
-        if(shouldShowProgress){
+    private fun showProgressBar(shouldShowProgress: Boolean) {
+        if (shouldShowProgress) {
             binding.progressBar.show()
             binding.clCurrentWeather.hide()
             binding.tabLayout.hide()
@@ -262,13 +267,13 @@ class CurrentWeatherForecastFragment : BaseFragment() {
                 permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true -> {
                     // Precise location access granted.
                     requestLocationUpdate()
-                    val mContext= context ?: return@registerForActivityResult
+                    val mContext = context ?: return@registerForActivityResult
                     if (!isLocationEnabled(mContext)) showGPSNotEnabledDialog(mContext)
                 }
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true -> {
                     // Only approximate location access granted.
                     requestLocationUpdate()
-                    val mContext= context ?: return@registerForActivityResult
+                    val mContext = context ?: return@registerForActivityResult
                     if (!isLocationEnabled(mContext)) showGPSNotEnabledDialog(mContext)
                 }
                 else -> {
@@ -309,7 +314,7 @@ class CurrentWeatherForecastFragment : BaseFragment() {
     override fun onDestroyView() {
         binding.weatherPager.adapter = null
         locationCallback?.let { fusedLocationClient.removeLocationUpdates(it) }
-        locationCallback= null
+        locationCallback = null
         super.onDestroyView()
         _binding = null
     }

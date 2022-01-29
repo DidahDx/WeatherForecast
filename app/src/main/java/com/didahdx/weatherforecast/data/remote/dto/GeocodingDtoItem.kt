@@ -8,9 +8,9 @@ data class GeocodingDtoItem(
     val lon: Double,
     val name: String,
     val state: String?
-){
+) {
 
-    fun mapToLocationEntity():LocationEntity{
+    fun mapToLocationEntity(): LocationEntity {
         return LocationEntity(country, lat, lon, name, state)
     }
 }

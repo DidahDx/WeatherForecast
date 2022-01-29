@@ -16,8 +16,7 @@ import com.didahdx.weatherforecast.data.local.entities.LocationEntity
  * @author by Daniel Didah on 1/20/22.
  */
 @Database(
-    entities = [CurrentEntity::class, DailyEntity::class, HourlyEntity::class
-               ,LocationEntity::class],
+    entities = [CurrentEntity::class, DailyEntity::class, HourlyEntity::class, LocationEntity::class],
     version = 1
 )
 @TypeConverters(WeatherConverter::class)

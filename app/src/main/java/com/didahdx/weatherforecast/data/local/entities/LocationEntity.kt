@@ -13,7 +13,7 @@ data class LocationEntity(
     val lon: Double,
     val name: String,
     val state: String?
-){
+) {
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0
 }

@@ -2,10 +2,11 @@ package com.didahdx.weatherforecast.presentation.weatherDetailsTabDay
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.didahdx.weatherforecast.data.local.dao.DailyWeatherDao
-import com.didahdx.weatherforecast.data.local.dao.HourlyWeatherDao
 import com.didahdx.weatherforecast.data.local.entities.DailyEntity
 import com.didahdx.weatherforecast.data.local.entities.HourlyEntity
+import com.didahdx.weatherforecast.domain.usecases.FiveDayForecast
+import com.didahdx.weatherforecast.domain.usecases.TodaysForecast
+import com.didahdx.weatherforecast.domain.usecases.TomorrowForecast
 import com.didahdx.weatherforecast.presentation.forecast.WeatherTabTypes
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -14,8 +15,9 @@ import java.util.*
 import javax.inject.Inject
 
 class DayWeatherDetailsViewModel @Inject constructor(
-    private val dailyWeatherDao: DailyWeatherDao,
-    private val hourlyWeatherDao: HourlyWeatherDao
+    private val todaysForecast: TodaysForecast,
+    private val tomorrowForecast: TomorrowForecast,
+    private val fiveDayForecast: FiveDayForecast
 ) : ViewModel() {
 
     private val compositeDisposable = CompositeDisposable()
@@ -26,24 +28,24 @@ class DayWeatherDetailsViewModel @Inject constructor(
         when (weatherTabTypes) {
             WeatherTabTypes.TODAY -> {
                 compositeDisposable.add(
-                    hourlyWeatherDao.getTodayHourlyWeather()
+                    todaysForecast.getForecast()
                         .subscribeOn(Schedulers.io())
                         .subscribe(hourlyWeather::postValue, Timber::e)
                 )
             }
             WeatherTabTypes.TOMORROW -> {
                 compositeDisposable.add(
-                    hourlyWeatherDao.getTomorrowHourlyWeather()
+                    tomorrowForecast.getForecast()
                         .subscribeOn(Schedulers.io())
                         .subscribe({
-                           Collections.reverse(it)
+                            Collections.reverse(it)
                             hourlyWeather.postValue(it)
                         }, Timber::e)
                 )
             }
             WeatherTabTypes.LATTER -> {
                 compositeDisposable.add(
-                    dailyWeatherDao.getFirstFiveDailyEntity()
+                    fiveDayForecast.getForecast()
                         .subscribeOn(Schedulers.io())
                         .subscribe(dailyWeather::postValue, Timber::e)
                 )

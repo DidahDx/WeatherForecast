@@ -14,11 +14,11 @@ import io.reactivex.rxjava3.core.Observable
 @Dao
 interface LocationDao {
     @Insert(onConflict = REPLACE)
-    fun addLocation(locationEntity: LocationEntity):Completable
+    fun addLocation(locationEntity: LocationEntity): Completable
 
     @Query("SELECT * FROM LocationEntity Limit 1")
-    fun getCurrentLocation():Observable<LocationEntity>
+    fun getCurrentLocation(): Observable<LocationEntity>
 
     @Query("DELETE FROM LocationEntity")
-    fun deleteAll():Completable
+    fun deleteAll(): Completable
 }

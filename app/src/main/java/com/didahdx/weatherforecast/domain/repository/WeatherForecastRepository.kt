@@ -1,9 +1,9 @@
 package com.didahdx.weatherforecast.domain.repository
 
 import com.didahdx.weatherforecast.data.local.entities.CurrentEntity
+import com.didahdx.weatherforecast.data.local.entities.DailyEntity
+import com.didahdx.weatherforecast.data.local.entities.HourlyEntity
 import com.didahdx.weatherforecast.data.local.entities.LocationEntity
-import com.didahdx.weatherforecast.data.remote.dto.GeocodingDtoItem
-import com.didahdx.weatherforecast.data.remote.dto.OneCallWeatherForecast
 import io.reactivex.rxjava3.core.Observable
 
 /**
@@ -13,9 +13,15 @@ interface WeatherForecastRepository {
 
     fun searchByCityName(cityName: String): Observable<CurrentEntity>
 
-    fun getAllCurrent(): Observable<CurrentEntity>
+    fun getCurrentForecast(): Observable<CurrentEntity>
 
     fun getCurrentLocation(): Observable<LocationEntity>
+
+    fun getTodaysForecast(): Observable<List<HourlyEntity>>
+
+    fun getTomorrowsForecast(): Observable<List<HourlyEntity>>
+
+    fun getFiveDaysForecast(): Observable<List<DailyEntity>>
 
     fun clear()
 }

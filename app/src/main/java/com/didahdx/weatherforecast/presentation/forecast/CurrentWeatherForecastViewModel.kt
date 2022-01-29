@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModel
 import com.didahdx.weatherforecast.data.local.entities.CurrentEntity
 import com.didahdx.weatherforecast.data.local.entities.LocationEntity
 import com.didahdx.weatherforecast.di.AssistedSavedStateViewModelFactory
-import com.didahdx.weatherforecast.domain.repository.WeatherForecastRepository
+import com.didahdx.weatherforecast.domain.usecases.GetCurrentForecast
+import com.didahdx.weatherforecast.domain.usecases.GetCurrentForecastLocation
+import com.didahdx.weatherforecast.domain.usecases.SearchForecast
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -20,30 +22,32 @@ import java.util.concurrent.TimeUnit
 
 
 class CurrentWeatherForecastViewModel @AssistedInject constructor(
-    private val weatherForecastRepository: WeatherForecastRepository,
+    private val getCurrentForecast: GetCurrentForecast,
+    private val getCurrentForecastLocation: GetCurrentForecastLocation,
+    private val searchForecast: SearchForecast,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val SEARCH_CITY = "SEARCH_CITY"
     private val compositeDisposable = CompositeDisposable()
     val currentWeather = MutableLiveData<CurrentEntity>()
-    val currentSearch= MutableLiveData<LocationEntity>()
+    val currentSearch = MutableLiveData<LocationEntity>()
     val errorMessage = MutableLiveData<String>()
-    val isLoading=MutableLiveData<Boolean>()
+    val isLoading = MutableLiveData<Boolean>()
     var searchMutableLiveData: MutableLiveData<String> =
         savedStateHandle.getLiveData(SEARCH_CITY, "")
     private val searchPublishSubject: PublishSubject<String> = PublishSubject.create<String>()
-    var isDefaultSearchSet=false
+    var isDefaultSearchSet = false
 
     init {
         initRxSearch()
         compositeDisposable.add(
-            weatherForecastRepository.getAllCurrent()
+            getCurrentForecast.getCurrentForecast()
                 .subscribeOn(Schedulers.io())
                 .subscribe(currentWeather::postValue, Timber::e)
         )
-        compositeDisposable += weatherForecastRepository.getCurrentLocation()
+        compositeDisposable += getCurrentForecastLocation.getLocation()
             .subscribeOn(Schedulers.io())
-            .subscribe(currentSearch::postValue,Timber::e)
+            .subscribe(currentSearch::postValue, Timber::e)
     }
 
     fun search(cityName: String) {
@@ -63,7 +67,8 @@ class CurrentWeatherForecastViewModel @AssistedInject constructor(
                 }
                 .switchMap {
                     Timber.e(it)
-                    weatherForecastRepository.searchByCityName(it).onErrorComplete { error ->
+                    searchForecast.byCityNameForecast(it)
+                        .onErrorComplete { error ->
                         Timber.e(error)
                         errorMessage.postValue(error.localizedMessage)
                         isLoading.postValue(false)
@@ -73,8 +78,7 @@ class CurrentWeatherForecastViewModel @AssistedInject constructor(
                 .subscribe({
                     Timber.e("$it")
                     isLoading.postValue(false)
-//                    currentWeather.postValue(it)
-                }, {error->
+                }, { error ->
                     Timber.e(error)
                     isLoading.postValue(false)
                     errorMessage.postValue(error.localizedMessage)
@@ -85,14 +89,13 @@ class CurrentWeatherForecastViewModel @AssistedInject constructor(
     override fun onCleared() {
         super.onCleared()
         compositeDisposable.dispose()
-        weatherForecastRepository.clear()
     }
 
     fun initialiseCurrentCity(cityName: String) {
-        if(isDefaultSearchSet) return
+        if (isDefaultSearchSet) return
         Timber.e(cityName)
         search(cityName)
-        isDefaultSearchSet=true
+        isDefaultSearchSet = true
     }
 
     @AssistedFactory

@@ -18,7 +18,7 @@ interface CurrentWeatherDao {
     fun addCurrent(currentEntity: CurrentEntity): Completable
 
     @Query("SELECT * FROM CurrentEntity LIMIT 1")
-    fun getAllCurrent(): Observable<CurrentEntity>
+    fun getCurrent(): Observable<CurrentEntity>
 
     @Query("DELETE FROM CurrentEntity")
     fun deleteAll(): Completable

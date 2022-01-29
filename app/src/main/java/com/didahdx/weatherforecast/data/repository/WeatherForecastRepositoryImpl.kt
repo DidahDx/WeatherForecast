@@ -6,12 +6,16 @@ import com.didahdx.weatherforecast.data.local.dao.DailyWeatherDao
 import com.didahdx.weatherforecast.data.local.dao.HourlyWeatherDao
 import com.didahdx.weatherforecast.data.local.dao.LocationDao
 import com.didahdx.weatherforecast.data.local.entities.CurrentEntity
+import com.didahdx.weatherforecast.data.local.entities.DailyEntity
+import com.didahdx.weatherforecast.data.local.entities.HourlyEntity
 import com.didahdx.weatherforecast.data.local.entities.LocationEntity
+import com.didahdx.weatherforecast.data.remote.api.GeocodingApi
+import com.didahdx.weatherforecast.data.remote.api.WeatherForecastApi
 import com.didahdx.weatherforecast.domain.repository.WeatherForecastRepository
-import com.didahdx.weatherforecast.domain.usecases.getGeocoding.GetGeocodingByCityName
-import com.didahdx.weatherforecast.domain.usecases.getWeatherForecastByCity.GetWeatherForecastByCityLatLong
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
@@ -20,18 +24,18 @@ import javax.inject.Inject
  * @author by Daniel Didah on 1/18/22
  */
 class WeatherForecastRepositoryImpl @Inject constructor(
-    private val getWeatherForecastByCityLatLong: GetWeatherForecastByCityLatLong,
-    private val getGeocodingByCityName: GetGeocodingByCityName,
+    private val geocodingApi: GeocodingApi,
+    private val weatherForecastApi: WeatherForecastApi,
     private val currentWeatherDao: CurrentWeatherDao,
     private val dailyWeatherDao: DailyWeatherDao,
     private val hourlyWeatherDao: HourlyWeatherDao,
     private val locationDao: LocationDao
-) : WeatherForecastRepository {
+) : WeatherForecastRepository, Disposable {
 
     private val compositeDisposable = CompositeDisposable()
 
     override fun searchByCityName(cityName: String): Observable<CurrentEntity> {
-        return getGeocodingByCityName
+        return geocodingApi
             .getGeocoding(cityName, Constants.API_KEY)
             .subscribeOn(Schedulers.io())
             .map {
@@ -41,13 +45,13 @@ class WeatherForecastRepositoryImpl @Inject constructor(
                 compositeDisposable += locationDao
                     .addLocation(geocodeDetails.mapToLocationEntity()).subscribe()
 
-                return@switchMap getWeatherForecastByCityLatLong
-                    .getWeatherForecast(
-                    geocodeDetails.lat.toString(),
-                    geocodeDetails.lon.toString(),
-                    "",
-                    Constants.API_KEY
-                )
+                return@switchMap weatherForecastApi
+                    .getWeatherForecastByLatitudeLongitude(
+                        geocodeDetails.lat.toString(),
+                        geocodeDetails.lon.toString(),
+                        "",
+                        Constants.API_KEY
+                    )
             }.switchMap { oneCallWeather ->
                 compositeDisposable += currentWeatherDao.deleteAll().subscribe()
                 compositeDisposable += dailyWeatherDao.deleteAll().subscribe()
@@ -67,21 +71,46 @@ class WeatherForecastRepositoryImpl @Inject constructor(
                         oneCallWeather.timezoneOffset
                     )
                 }).subscribe()
-                currentWeatherDao.getAllCurrent()
+                currentWeatherDao.getCurrent()
             }
     }
 
 
-    override fun getAllCurrent(): Observable<CurrentEntity> {
-        return currentWeatherDao.getAllCurrent()
+    override fun getCurrentForecast(): Observable<CurrentEntity> {
+        return currentWeatherDao.getCurrent()
     }
 
     override fun getCurrentLocation(): Observable<LocationEntity> {
         return locationDao.getCurrentLocation()
     }
 
+    override fun getTodaysForecast(): Observable<List<HourlyEntity>> {
+        return hourlyWeatherDao.getTodayHourlyWeather()
+    }
+
+    override fun getTomorrowsForecast(): Observable<List<HourlyEntity>> {
+        return hourlyWeatherDao.getTomorrowHourlyWeather()
+    }
+
+    override fun getFiveDaysForecast(): Observable<List<DailyEntity>> {
+        return dailyWeatherDao.getFirstFiveDailyEntity()
+    }
+
 
     override fun clear() {
+
+    }
+
+//    @Throws(Throwable::class)
+//    protected fun finalize(){
+//        compositeDisposable.dispose()
+//    }
+
+    override fun dispose() {
         compositeDisposable.dispose()
+    }
+
+    override fun isDisposed(): Boolean {
+       return compositeDisposable.isDisposed
     }
 }

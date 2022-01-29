@@ -43,5 +43,5 @@ class WeatherDatabaseModule {
 
     @Provides
     @Singleton
-    fun provideLocationDao(weatherDatabase: WeatherDatabase)= weatherDatabase.getLocationDao()
+    fun provideLocationDao(weatherDatabase: WeatherDatabase) = weatherDatabase.getLocationDao()
 }

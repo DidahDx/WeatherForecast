@@ -12,8 +12,6 @@ import com.didahdx.weatherforecast.data.remote.api.GeocodingApi
 import com.didahdx.weatherforecast.data.remote.api.WeatherForecastApi
 import com.didahdx.weatherforecast.data.repository.WeatherForecastRepositoryImpl
 import com.didahdx.weatherforecast.domain.repository.WeatherForecastRepository
-import com.didahdx.weatherforecast.domain.usecases.getGeocoding.GetGeocodingByCityName
-import com.didahdx.weatherforecast.domain.usecases.getWeatherForecastByCity.GetWeatherForecastByCityLatLong
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -103,19 +101,19 @@ class ApiServiceModule {
     }
 
     @Provides
-    @Singleton
     fun provideWeatherForecastRepo(
-        getGeocodingByCityName: GetGeocodingByCityName,
-        getWeatherForecastByCityLatLong: GetWeatherForecastByCityLatLong,
+        geocodingApi: GeocodingApi,
+        weatherForecastApi: WeatherForecastApi,
         currentWeatherDao: CurrentWeatherDao,
         dailyWeatherDao: DailyWeatherDao,
         hourlyWeatherDao: HourlyWeatherDao,
         locationDao: LocationDao
     ): WeatherForecastRepository {
         return WeatherForecastRepositoryImpl(
-           getWeatherForecastByCityLatLong,
-            getGeocodingByCityName,
-            currentWeatherDao, dailyWeatherDao, hourlyWeatherDao,locationDao)
+            geocodingApi,
+            weatherForecastApi,
+            currentWeatherDao, dailyWeatherDao, hourlyWeatherDao, locationDao
+        )
     }
 
 }
